@@ -1,0 +1,45 @@
+{
+  "name": "niflheim",
+  "version": "1.0.0",
+  "description": "Painlessly animate mounting/unmounting React components",
+  "repository": "https://github.com/benoneal/niflheim",
+  "main": "dist/index.js",
+  "scripts": {
+    "prepare": "mkdir dist && babel src --out-dir dist",
+    "size": "npm run prepare && bundle-size ./",
+    "lint": "standard",
+    "test": "mocha --reporter spec test/setup.js \"test/*-test.js\""
+  },
+  "keywords": [
+    "animate",
+    "transition",
+    "react"
+  ],
+  "author": "Ben O'Neal",
+  "license": "MIT",
+  "devDependencies": {
+    "assert": "^1.4.1",
+    "babel-cli": "^6.23.0",
+    "babel-eslint": "^6.1.0",
+    "babel-loader": "^6.2.4",
+    "babel-plugin-transform-react-jsx": "^6.22.0",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "babel-register": "^6.9.0",
+    "bundle-size": "^0.6.0",
+    "jsdom": "^9.11.0",
+    "mocha": "^3.5.3",
+    "react-addons-test-utils": "^15.6.2",
+    "react-dom": "^16.2.0",
+    "standard": "^7.1.2"
+  },
+  "dependencies": {
+    "classnames": "^2.2.5",
+    "moize": "^4.0.4",
+    "react": "^16.2.0",
+    "recompose": "^0.26.0"
+  },
+  "standard": {
+    "parser": "babel-eslint"
+  }
+}
