@@ -67,6 +67,7 @@ export const cleanProps = mapProps(({
   setLeaving,
   setLeft,
   setJustEntered,
+  duration,
   ...props
 }) => props)
 
