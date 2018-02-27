@@ -1,6 +1,6 @@
 {
   "name": "niflheim",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Painlessly animate mounting/unmounting React components",
   "repository": "https://github.com/benoneal/niflheim",
   "main": "dist/index.js",
@@ -35,6 +35,8 @@
   },
   "dependencies": {
     "classnames": "^2.2.5",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
     "moize": "^4.0.4",
     "react": "^16.2.0",
     "recompose": "^0.26.0"

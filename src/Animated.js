@@ -5,7 +5,8 @@ import cx from 'classnames'
 import {
   triggerForceUpdates,
   nextReducer,
-  zipLeaving
+  zipLeaving,
+  cleanProps
 } from './shared'
 
 const withTransitionStates = withHandlers(() => {
@@ -46,7 +47,9 @@ const diffChildren = (prev, {
 } 
 
 const statusClassNames = ({
-  As,
+  updates,
+  forceUpdate,
+
   leaving,
 
   entering = 'entering',
@@ -70,5 +73,6 @@ export default compose(
   triggerForceUpdates,
   withTransitionStates,
   withPropsOnChange(diffChildren, zipLeaving),
-  mapProps(statusClassNames)
+  mapProps(statusClassNames),
+  cleanProps
 )
