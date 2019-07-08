@@ -1,52 +1,23 @@
-import {Children, cloneElement} from 'react'
-import {compose, withHandlers, withPropsOnChange, mapProps} from 'recompose'
-import cx from 'classnames'
-
+import {Children} from 'react'
 import {
-  triggerForceUpdates,
   nextReducer,
-  zipLeaving,
-  cleanProps
+  createTransitionHook,
+  clone
 } from './shared'
 
 const {values} = Object
 
-const withTransitionStates = withHandlers(() => {
-  const leaving = {}
-  const justEntered = {}
-  return {
-    leaving: () => () => leaving,
-    justEntered: () => () => justEntered,
-    setLeaving: () => (key, child, index) => {
-      leaving[key] = {child, index}
-    },
-    setLeft: ({forceUpdate}) => (key) => {
-      delete leaving[key]
-      forceUpdate()
-    },
-    setJustEntered: ({forceUpdate}) => (key, bool) => {
-      if (bool) justEntered[key] = bool 
-      if (!bool) {
-        delete justEntered[key]
-        forceUpdate()
-      }
-    }
-  }
-})
-
-const diffChildren = (prev, {
-  duration = 500,
+const transitionState = ({
+  previous,
+  children,
   setLeaving,
-  setLeft, 
-  setJustEntered,
-  updates,
-  children
-} = {}) => {
-  if (prev.updates === updates && prev.children === children) return false
-
+  setLeft,
+  setEntering,
+  duration
+}) => {
   const nextChildren = Children.toArray(children).reduce(nextReducer, {})
 
-  Children.toArray(prev.children).forEach((child, i) => {
+  Children.toArray(previous).forEach((child, i) => {
     if (!nextChildren[child.key]) {
       setLeaving(child.key, child, i)
       setTimeout(() => setLeft(child.key), duration)
@@ -55,43 +26,17 @@ const diffChildren = (prev, {
     }
   })
 
-  values(nextChildren).forEach((child) => {
-    setJustEntered(child.key, true)
-    setTimeout(() => setJustEntered(child.key), 1)
+  values(nextChildren).forEach(({key}) => {
+    setEntering(key, true)
+    setTimeout(() => setEntering(key), 1)
+  })
+}
+
+const applyClasses = ({leaving, entering, children, options: {reverse = false, ...classes}}) =>
+  Children.map(children, child => {
+    const t = ['before_enter', 'after_exit']
+    const c = leaving[child.key] ? t.reverse()[+reverse] : entering[child.key] ? t[+reverse] : 'entered'
+    return clone(child, classes[c] || c)
   })
 
-  return true
-} 
-
-const statusClassNames = ({
-  updates,
-  forceUpdate,
-
-  leaving,
-  justEntered,
-
-  before_enter = 'before_enter',
-  entered = 'entered',
-  after_exit = 'after_exit',
-
-  reverse,
-  children,
-  ...props
-}) => ({
-  ...props,
-  children: Children.map(children, (child) =>
-    leaving().hasOwnProperty(child.key)
-      ? cloneElement(child, {className: cx(child.props.className, reverse ? before_enter : after_exit)})
-      : justEntered().hasOwnProperty(child.key)
-        ? cloneElement(child, {className: cx(child.props.className, reverse ? after_exit : before_enter)})
-        : cloneElement(child, {className: cx(child.props.className, entered)})
-  )
-})
-
-export default compose(
-  triggerForceUpdates,
-  withTransitionStates,
-  withPropsOnChange(diffChildren, zipLeaving),
-  mapProps(statusClassNames),
-  cleanProps
-)
+export default createTransitionHook(transitionState, applyClasses)

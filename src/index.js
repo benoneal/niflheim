@@ -1,9 +1,14 @@
-import AnimatedHOC from './Animated'
-import TransitionedHOC from './Transitioned'
-import {Wrapper} from './shared'
+import React from 'react'
+import useAnimated from './Animated'
+import useTransitioned from './Transitioned'
 
-export const withAnimatedChildren = AnimatedHOC
-export const withTransitionedChildren = TransitionedHOC
+export {
+  useAnimated,
+  useTransitioned
+}
 
-export const Animated = withAnimatedChildren(Wrapper)
-export const Transitioned = withTransitionedChildren(Wrapper)
+export const Animated = ({As = React.Fragment, children, ...options}) =>
+  <As>{useAnimated(children, options)}</As>
+
+export const Transitioned = ({As = React.Fragment, children, ...options}) =>
+  <As>{useTransitioned(children, options)}</As>
