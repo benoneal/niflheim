@@ -1,6 +1,6 @@
 {
   "name": "niflheim",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Painlessly animate mounting/unmounting React components",
   "repository": "https://github.com/benoneal/niflheim",
   "main": "index.js",
