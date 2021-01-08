@@ -35,7 +35,7 @@ const transitionState = ({
 const applyClasses = ({leaving, entering, children, options: {reverse = false, ...classes}}) =>
   Children.map(children, child => {
     const t = ['before_enter', 'after_exit']
-    const c = leaving[child.key] ? t.reverse()[+reverse] : entering[child.key] ? t[+reverse] : 'entered'
+    const c = leaving.get(child.key) ? t.reverse()[+reverse] : entering.get(child.key) ? t[+reverse] : 'entered'
     return clone(child, classes[c] || c)
   })
 

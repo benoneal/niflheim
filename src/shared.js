@@ -6,24 +6,27 @@ import {
   useMemo
 } from 'react'
 
-const {values} = Object
 const {max} = Math
+const cx = (...args) => args.filter(Boolean).join(' ')
 
 export const clone = (child, className) => cloneElement(child, {className: cx(child.props.className, className)})
 
-const cx = (...args) => args.filter(Boolean).join(' ')
-
 const transitionHandlers = {
   previous: (state, previous) => ({...state, previous}),
-  leaving: ({leaving, ...state}, key, child, index) => ({...state, leaving: {...leaving, [key]: {child, index}}}),
-  left: ({leaving, ...state}, key) => {
-    const {[key]: _, ...newLeaving} = leaving
-    return {...state, leaving: newLeaving}
+  leaving: (state, key, child, index) => {
+    state.leaving.set(key, {child, index})
+    state.evolution++
+    return state
   },
-  entering: ({entering, ...state}, key, bool) => {
-    if (bool) return ({...state, entering: {...entering, [key]: bool}})
-    const {[key]: _, ...newEntered} = entering
-    return {...state, entering: newEntered}
+  left: (state, key) => {
+    state.leaving.delete(key)
+    state.evolution++
+    return state
+  },
+  entering: (state, key, bool) => {
+    bool ? state.entering.set(key, bool) : state.entering.delete(key)
+    state.evolution++
+    return state
   }
 }
 
@@ -64,7 +67,7 @@ const zipLeaving = (
   let maxIndex = currentChildren.length
   let offset = 0
 
-  const leavingMap = values(leaving).reduce((acc, {child, index}) => {
+  const leavingMap = [...leaving.values()].reduce((acc, {child, index}) => {
     if (currentKeys.includes(child.key)) return acc
 
     const insertAt = nextFreeIndex(acc, index + offset)
@@ -82,7 +85,7 @@ const zipLeaving = (
 const createSetter = (action, dispatch) => useCallback((...args) => dispatch([action, ...args]), [])
 
 export const createTransitionHook = (transitionState, applyClasses) => (children, {duration = 500, ...options}) => {
-  const [{previous, entering, leaving}, dispatch] = useReducer(reducer, {previous: children, entering: {}, leaving: {}})
+  const [{previous, entering, leaving, evolution}, dispatch] = useReducer(reducer, {evolution: 0, previous: children, entering: new Map(), leaving: new Map()})
   const setPrevious = createSetter('previous', dispatch)
   const setEntering = createSetter('entering', dispatch)
   const setLeaving = createSetter('leaving', dispatch)
@@ -91,5 +94,5 @@ export const createTransitionHook = (transitionState, applyClasses) => (children
     transitionState({previous, children, setLeaving, setLeft, setEntering, duration})
     setPrevious(children)
   }
-  return useMemo(_ => applyClasses({leaving, entering, children: zipLeaving(leaving, children), options}), [entering, leaving, children])
+  return useMemo(_ => applyClasses({leaving, entering, children: zipLeaving(leaving, children), options}), [evolution, children])
 }
