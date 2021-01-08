@@ -1,32 +1,42 @@
-import buble from 'rollup-plugin-buble'
-import babel from 'rollup-plugin-babel'
+import buble from '@rollup/plugin-buble'
 import {terser} from 'rollup-plugin-terser'
+import pack from './package.json'
+
+const external = [...Object.keys(pack.peerDependencies), 'react-dom/server']
 
 const plugins = [
-  babel({
-    babelrc: false,
-    exclude: 'node_modules/**',
-    presets: ['@babel/env', '@babel/preset-react'],
-    plugins: [
-      '@babel/plugin-syntax-jsx',
-    ],
+  buble({
+    objectAssign: true,
+    transforms: {
+      asyncAwait: false,
+      spreadRest: false,
+      generator: false,
+      dangerousForOf: false,
+      computedProperty: false,
+      defaultParameter: false,
+      destructuring: false,
+      parameterDestructuring: false,
+      spreadRest: false,
+    },
   }),
-  buble({objectAssign: 'Object.assign'}),
   terser(),
 ]
 
-export default {
+export default [{
   input: 'src/index.js',
   plugins,
-  external: ['react'],
+  external,
+  treeshake: {
+    moduleSideEffects: false,
+    propertyReadSideEffects: false,
+    unknownGlobalSideEffects: false,
+  },
   output: {
     file: 'index.js',
     format: 'cjs',
     exports: 'named',
-    globals: {react: 'React'},
+    sourcemap: false,
     strict: false,
-    treeshake: {
-      pureExternalModules: true,
-    }
+    globals: {react: 'React'},
   }
-}
+}];

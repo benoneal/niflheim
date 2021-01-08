@@ -1,7 +1,7 @@
 import React from 'react'
 import {renderToString} from 'react-dom/server'
 import {configure, mount} from 'enzyme'
-import Adapter from 'enzyme-adapter-react-16'
+import Adapter from '@wojtekmaj/enzyme-adapter-react-17'
 import {Animated, Transitioned} from '../src'
 
 configure({adapter: new Adapter()})
